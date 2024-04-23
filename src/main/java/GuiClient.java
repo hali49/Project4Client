@@ -2,7 +2,10 @@
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.application.Application;
@@ -13,23 +16,23 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.scene.Node;
+import javafx.util.Duration;
 
 public class GuiClient extends Application{
 
 	Stage stage; //easier scene switching
-	HashMap<String, Scene> sceneMap; //scene swtiching
+	HashMap<String, Scene> sceneMap; //scene switching
 	Client clientConnection;
 
 
 	//menu screen
-	VBox mainMenuVbox;
+	Label gameTitle;
 	Button onlineGameButton;
 	Button offlineGameButton;
 	//menu screen
@@ -60,15 +63,9 @@ public class GuiClient extends Application{
 	HBox hbox3; //server testing
 
 	//gameplay screen
-	//win screen
-	Button mainMenuWin;
-	Label winLabel;
-	//win screen
-	//lose screen
-	Button mainMenuLose;
-	Label loseLabel;
-	//lose screen
-	
+	Button mainMenu;
+	Label resultLabel;
+
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -218,8 +215,8 @@ public class GuiClient extends Application{
 		sceneMap.put("mainMenu",  generateMainMenu());
 		sceneMap.put("matchmaking", generateMatchmaking());
 		sceneMap.put("gameplay", generateGameplayScene());
-		sceneMap.put("win", generateWinScreen());
-		sceneMap.put("lose", generateLoseScreen());
+		sceneMap.put("win", generateResultScreen("YOU WON"));
+		sceneMap.put("lose", generateResultScreen("YOU LOST"));
 
 
 
@@ -237,9 +234,27 @@ public class GuiClient extends Application{
 	}
 
 	public Scene generateMainMenu() {
+		StackPane pane = new StackPane();
+		ImageView i1 = new ImageView(new Image("/images/ship.png"));
+		i1.setPreserveRatio(true);
+		i1.setFitWidth(407);
+		ImageView i2 = new ImageView(new Image("/images/ship.png"));
+		i2.setPreserveRatio(true);
+		i2.setFitWidth(407);
+		gameTitle = new Label("BATTLE SHIP");
+		gameTitle.getStyleClass().add("title");
 		onlineGameButton = new Button("Online");
+		onlineGameButton.getStyleClass().add("button");
 		offlineGameButton = new Button("Offline");
-		mainMenuVbox = new VBox(20, onlineGameButton, offlineGameButton);
+		offlineGameButton.getStyleClass().add("button");
+		VBox v1 = new VBox(30, onlineGameButton, offlineGameButton);
+		v1.setAlignment(Pos.CENTER);
+		VBox v2 = new VBox(90, gameTitle, v1);
+		v2.setAlignment(Pos.CENTER);
+		pane.getChildren().addAll(i1,v2,i2);
+		StackPane.setAlignment(i1, Pos.BOTTOM_LEFT);
+		StackPane.setAlignment(v2, Pos.CENTER_RIGHT);
+		StackPane.setAlignment(i2, Pos.BOTTOM_RIGHT);
 
 		onlineGameButton.setOnAction(e->{
 			stage.setScene(sceneMap.get("matchmaking"));
@@ -248,16 +263,41 @@ public class GuiClient extends Application{
 			clientConnection.sendInfo(data);
 
 		});
-
-		return new Scene(mainMenuVbox, 400, 300);
+		Scene scene = new Scene(pane, 1440,1024);
+		scene.getStylesheets().add("/styles/style1.css");
+		return scene;
 	}
 
 	public Scene generateMatchmaking() {
-		matchmakingLabel = new Label("Matchmaking");
-		return  new Scene(matchmakingLabel, 400, 300);
+		gameTitle = new Label("BATTLE SHIP");
+		gameTitle.getStyleClass().add("title");
+		matchmakingLabel = new Label("Matchmaking...");
+		matchmakingLabel.getStyleClass().add("result");
+		animate(matchmakingLabel);
+
+		VBox v1 = new VBox(90, gameTitle, matchmakingLabel);
+		v1.setAlignment(Pos.TOP_CENTER);
+		v1.setPadding(new Insets(200));
+		Scene scene = new Scene(v1, 1440, 1024);
+		scene.getStylesheets().add("/styles/style1.css");
+		return scene;
+	}
+
+	// this function is made for matchmakingLabel's animation
+	private void animate(Label label) {
+		Timeline timeline = new Timeline(
+				new KeyFrame(Duration.seconds(0.5), e -> label.setText("Matchmaking")),
+				new KeyFrame(Duration.seconds(1), e -> label.setText("Matchmaking.")),
+				new KeyFrame(Duration.seconds(1.5), e -> label.setText("Matchmaking..")),
+				new KeyFrame(Duration.seconds(2), e -> label.setText("Matchmaking..."))
+		);
+		timeline.setCycleCount(Timeline.INDEFINITE);
+		timeline.play();
 	}
 
 	public Scene generateGameplayScene() {
+		gameTitle = new Label("BATTLE SHIP");
+		gameTitle.getStyleClass().add("title");
 		quitGame = new Button("Quit");
 		gameStatus = new Label();
 		playerTurn = new Label();
@@ -393,7 +433,7 @@ public class GuiClient extends Application{
 
 			//elements in combobox are strings for better customization on gui
 			//"" because we convert to string
-			if (r1 != "null" && c1 != "null" && r2 != "null" && c2 != "null") {
+			if (!Objects.equals(r1, "null") && !Objects.equals(c1, "null") && !Objects.equals(r2, "null") && !Objects.equals(c2, "null")) {
 				placeShip.setDisable(true);  //to not spam/not have synchronization issues
 
 				int intr1 = (int)r1.charAt(0) - 65;
@@ -419,30 +459,30 @@ public class GuiClient extends Application{
 			yourTurn = false;
 		});
 
-		return new Scene(vbox1, 1300, 750);
+		Scene scene = new Scene(vbox1, 1440, 1024);
+		scene.getStylesheets().add("/styles/style1.css");
+		return scene;
 	}
 
-	public Scene generateWinScreen() {
-		winLabel = new Label("You won");
-		mainMenuWin = new Button("Main menu");
-		VBox v1 = new VBox(15, winLabel, mainMenuWin);
-		mainMenuWin.setOnAction(e->{
+	public Scene generateResultScreen(String result) {
+		gameTitle = new Label("BATTLE SHIP");
+		gameTitle.getStyleClass().add("title");
+		resultLabel = new Label(result);
+		resultLabel.getStyleClass().add("result");
+		mainMenu = new Button("Main menu");
+		mainMenu.getStyleClass().add("button");
+		VBox v1 = new VBox(18, resultLabel, mainMenu);
+		mainMenu.setOnAction(e->{
 			stage.setScene(sceneMap.get("mainMenu"));
 			sceneMap.put("gameplay", generateGameplayScene()); //reset gameplay screen
 			yourTurn = false;
 		});
-		return new Scene(v1, 400, 300);
-	}
-	public Scene generateLoseScreen(){
-		loseLabel = new Label("You lost");
-		mainMenuLose = new Button("Main menu");
-		VBox v1 = new VBox(15, loseLabel, mainMenuLose);
-		mainMenuLose.setOnAction(e->{
-			stage.setScene(sceneMap.get("mainMenu"));
-			sceneMap.put("gameplay", generateGameplayScene()); //reset gameplay screen
-			yourTurn = false;
-		});
-		return new Scene(v1, 400, 300);
+		VBox v2 = new VBox(60, gameTitle, v1);
+		v1.setAlignment(Pos.CENTER);
+		v2.setAlignment(Pos.CENTER);
+		Scene scene = new Scene(v2, 1440, 1024);
+		scene.getStylesheets().add("/styles/style1.css");
+		return scene;
 	}
 
 
