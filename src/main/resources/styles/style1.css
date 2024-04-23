@@ -1,0 +1,26 @@
+.title {
+    -fx-font-family: "Keania One";
+    -fx-font-size: 128px;
+    -fx-text-fill: black;
+    -fx-text-alignment: center;
+}
+.result {
+    -fx-text-alignment: center;
+    -fx-text-fill: black;
+    -fx-font-size: 80px;
+    -fx-font-family: "Kelly Slab";
+}
+.button{
+    -fx-background-color: #d9d9d9;
+    -fx-background-radius: 30px;
+    -fx-pref-height: 111px;
+    -fx-pref-width: 328px;
+    text-alignment: center;
+    -fx-font-size: 50px;
+    -fx-font-family: "Kelly Slab";
+    -fx-text-fill: black;
+}
+.button:hover {
+    -fx-background-color: black;
+    -fx-text-fill: #d9d9d9;
+}
