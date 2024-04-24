@@ -417,7 +417,7 @@ public class GuiClient extends Application{
 		enemyGrid.getChildren().get(0).setVisible(false);
 
 		hbox1 = new HBox(20, yourGrid, enemyGrid);
-		hbox2 = new HBox(15, quitGame, gameStatus, playerTurn, enemyShipsLeft);
+		hbox2 = new HBox(50, quitGame, gameStatus, playerTurn, enemyShipsLeft);
 		hbox3 = new HBox(10, row1, col1, row2, col2, placeShip);
 		vbox1 = new VBox(10, gameTitle, hbox1, hbox2, hbox3);
 		hbox2.setPadding(new Insets(0,0,0,140));
