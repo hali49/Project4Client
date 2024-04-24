@@ -1,5 +1,5 @@
 
-import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -15,7 +15,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -23,6 +22,10 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.scene.Node;
 import javafx.util.Duration;
+import javafx.scene.text.Font;
+
+import javafx.scene.media.*;
+import javafx.scene.media.MediaPlayer;
 
 public class GuiClient extends Application{
 
@@ -47,10 +50,10 @@ public class GuiClient extends Application{
 	Label playerTurn;
 	GridPane yourGrid;
 	GridPane enemyGrid;
-	ComboBox row1;
-	ComboBox row2;
-	ComboBox col1;
-	ComboBox col2;
+	ComboBox<String> row1;
+	ComboBox<String> row2;
+	ComboBox<String> col1;
+	ComboBox<String> col2;
 	Button placeShip;
 	ArrayList<Integer> shipSizes;
 	int shipIndex;
@@ -83,9 +86,7 @@ public class GuiClient extends Application{
 						if (gameData.validPlacement) {
 							if (gameData.allShipsPlaced) {
 								gameStatus.setText("All ships placed");
-								//get rid of ship placement items on screen
-								hbox3.setVisible(false);
-								hbox3.setDisable(true);
+								hbox3.setVisible(false);//get rid of ship placement items on screen
 							}
 							else {
 								//update next ship to place
@@ -100,6 +101,7 @@ public class GuiClient extends Application{
 							//they will contain list of cells to color when placing a ship
 							ArrayList<Integer> gridRows = new ArrayList<>();
 							ArrayList<Integer> gridCols = new ArrayList<>();
+
 							if (gridRow2 - gridRow1 == 0) {
 								for (int i = Math.min(gridCol1, gridCol2); i <= Math.max(gridCol1, gridCol2); i++) {
 									gridCols.add(i);
@@ -208,6 +210,18 @@ public class GuiClient extends Application{
 		});
 							
 		clientConnection.start();
+
+		// Add sound to the game
+		String audioPath = Objects.requireNonNull(getClass().getResource("/audiofiles/gamesound.mp3")).toExternalForm();
+		Media media = new Media(audioPath);
+		MediaPlayer mediaPlayer = new MediaPlayer(media);
+		mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+		mediaPlayer.play();
+
+		// Add fonts to the game
+		Font.loadFont(getClass().getResourceAsStream("/fonts/KeaniaOne.ttf"), 12);
+		Font.loadFont(getClass().getResourceAsStream("/fonts/KellySlab.ttf"), 12);
+
 		//IMPORTANT scene switching/now if you want a button to change scene you can
 		//declare that in the scene creation function
 		stage = primaryStage;
@@ -233,6 +247,11 @@ public class GuiClient extends Application{
 		primaryStage.show();
 	}
 
+	private MediaPlayer createMediaPlayer(String audioFilePath) {
+		Media media = new Media(new File(audioFilePath).toURI().toString());
+		return new MediaPlayer(media);
+	}
+
 	public Scene generateMainMenu() {
 		StackPane pane = new StackPane();
 		ImageView i1 = new ImageView(new Image("/images/ship.png"));
@@ -242,11 +261,11 @@ public class GuiClient extends Application{
 		i2.setPreserveRatio(true);
 		i2.setFitWidth(407);
 		gameTitle = new Label("BATTLE SHIP");
-		gameTitle.getStyleClass().add("title");
+		gameTitle.getStyleClass().add("label1");
 		onlineGameButton = new Button("Online");
-		onlineGameButton.getStyleClass().add("button");
+		onlineGameButton.getStyleClass().add("button1");
 		offlineGameButton = new Button("Offline");
-		offlineGameButton.getStyleClass().add("button");
+		offlineGameButton.getStyleClass().add("button1");
 		VBox v1 = new VBox(30, onlineGameButton, offlineGameButton);
 		v1.setAlignment(Pos.CENTER);
 		VBox v2 = new VBox(90, gameTitle, v1);
@@ -270,9 +289,9 @@ public class GuiClient extends Application{
 
 	public Scene generateMatchmaking() {
 		gameTitle = new Label("BATTLE SHIP");
-		gameTitle.getStyleClass().add("title");
+		gameTitle.getStyleClass().add("label1");
 		matchmakingLabel = new Label("Matchmaking...");
-		matchmakingLabel.getStyleClass().add("result");
+		matchmakingLabel.getStyleClass().add("label2");
 		animate(matchmakingLabel);
 
 		VBox v1 = new VBox(90, gameTitle, matchmakingLabel);
@@ -297,17 +316,25 @@ public class GuiClient extends Application{
 
 	public Scene generateGameplayScene() {
 		gameTitle = new Label("BATTLE SHIP");
-		gameTitle.getStyleClass().add("title");
+		gameTitle.getStyleClass().add("label1");
 		quitGame = new Button("Quit");
+		quitGame.getStyleClass().add("button2");
 		gameStatus = new Label();
+		gameStatus.getStyleClass().add("label3");
 		playerTurn = new Label();
+		playerTurn.getStyleClass().add("label3");
 		enemyShipsLeft = new Label("Enemy ships left: 5");
+		enemyShipsLeft.getStyleClass().add("label3");
 		enemyShipsLeft.setVisible(false);
 		playerTurn.setVisible(false);
 		row1 = new ComboBox<>();
 		row2 = new ComboBox<>();
 		col1 = new ComboBox<>();
 		col2 = new ComboBox<>();
+		row1.getStyleClass().add("combo-box");
+		row2.getStyleClass().add("combo-box");
+		col1.getStyleClass().add("combo-box");
+		col2.getStyleClass().add("combo-box");
 		shipIndex = 0;
 		shipSizes = new ArrayList<>();
 		shipSizes.add(2);
@@ -316,19 +343,14 @@ public class GuiClient extends Application{
 		shipSizes.add(4);
 		shipSizes.add(5);
 		placeShip = new Button("Place ship");
+		placeShip.getStyleClass().add("button2");
 		yourGrid = new GridPane();
-		yourGrid.setHgap(2); //horizontal spacing between elements in the grid
-		yourGrid.setVgap(2); //vertical spacing between elements in the grid
+		yourGrid.getStyleClass().add("grid-pane");
 		for (int i = 0; i < 11; i++) {
 			for (int j = 0; j < 11; j++) {
 				if (i == 0) {
 					Label l = new Label(String.valueOf(j));  //dont want clickable
-					l.setMinWidth(50);
-					l.setMaxWidth(50);
-					l.setMinHeight(50);
-					l.setMaxHeight(50);
-					l.setAlignment(Pos.CENTER);
-					l.setStyle("-fx-border-color: black; -fx-border-width: 1px");
+					l.getStyleClass().add("grid-label");
 					yourGrid.add(l, j, i);
 					if (j != 0) {
 						col1.getItems().add(String.valueOf(j));
@@ -337,24 +359,15 @@ public class GuiClient extends Application{
 				}
 				else if (j == 0) {
 					Label l = new Label(String.valueOf((char)(i + 64)));  //same as above
-					l.setMinWidth(50);
-					l.setMaxWidth(50);
-					l.setMinHeight(50);
-					l.setMaxHeight(50);
-					l.setAlignment(Pos.CENTER);
-					l.setStyle("-fx-border-color: black; -fx-border-width: 1px");
+					l.getStyleClass().add("grid-label");
 					yourGrid.add(l, j, i);
 					row1.getItems().add(String.valueOf((char)(i + 64))); //convert to letters
 					row2.getItems().add(String.valueOf((char)(i + 64)));
 				}
 				else {
 					Button b = new Button();
+					b.getStyleClass().add("grid-cell");
 					b.setDisable(true);
-					b.setStyle("-fx-opacity: 1; -fx-background-color: rgb(173, 216, 230)");
-					b.setMinWidth(50);
-					b.setMaxWidth(50);
-					b.setMinHeight(50);
-					b.setMaxHeight(50);
 					yourGrid.add(b, j, i);
 				}
 			}
@@ -362,40 +375,25 @@ public class GuiClient extends Application{
 		yourGrid.getChildren().get(0).setVisible(false);
 
 		enemyGrid = new GridPane();
-		enemyGrid.setHgap(2);
-		enemyGrid.setVgap(2);
+		enemyGrid.getStyleClass().add("grid-pane");
 
 		//same grid for enemy
 		for (int i = 0; i < 11; i++) {
 			for (int j = 0; j < 11; j++) {
 				if (i == 0) {
 					Label l = new Label(String.valueOf(j));
-					l.setMinWidth(50);
-					l.setMaxWidth(50);
-					l.setMinHeight(50);
-					l.setMaxHeight(50);
-					l.setAlignment(Pos.CENTER);
-					l.setStyle("-fx-border-color: black; -fx-border-width: 1px");
+					l.getStyleClass().add("grid-label");
 					enemyGrid.add(l, j, i);
 
 				}
 				else if (j == 0) {
 					Label l = new Label(String.valueOf((char)(i + 64)));
-					l.setMinWidth(50);
-					l.setMaxWidth(50);
-					l.setMinHeight(50);
-					l.setMaxHeight(50);
-					l.setAlignment(Pos.CENTER);
-					l.setStyle("-fx-border-color: black; -fx-border-width: 1px");
+					l.getStyleClass().add("grid-label");
 					enemyGrid.add(l, j, i);
 				}
 				else {
 					Button b = new Button();
-					b.setMinWidth(50);
-					b.setMaxWidth(50);
-					b.setMinHeight(50);
-					b.setMaxHeight(50);
-					b.setStyle("-fx-background-color: rgb(173, 216, 230)");
+					b.getStyleClass().add("grid-cell");
 					enemyGrid.add(b, j, i);
 					b.setOnAction(e->{ //shotting enemy ship
 						if (yourTurn) {
@@ -418,10 +416,16 @@ public class GuiClient extends Application{
 		}
 		enemyGrid.getChildren().get(0).setVisible(false);
 
-		hbox1 = new HBox(15, yourGrid, enemyGrid);
+		hbox1 = new HBox(20, yourGrid, enemyGrid);
 		hbox2 = new HBox(15, quitGame, gameStatus, playerTurn, enemyShipsLeft);
 		hbox3 = new HBox(10, row1, col1, row2, col2, placeShip);
-		vbox1 = new VBox(10, hbox1, hbox2, hbox3);
+		vbox1 = new VBox(10, gameTitle, hbox1, hbox2, hbox3);
+		hbox2.setPadding(new Insets(0,0,0,140));
+		hbox3.setPadding(new Insets(0,0,0,140));
+		hbox1.setAlignment(Pos.CENTER);
+		hbox2.setAlignment(Pos.CENTER_LEFT);
+		hbox3.setAlignment(Pos.CENTER_LEFT);
+		vbox1.setAlignment(Pos.TOP_CENTER);
 		//arrangements of items
 
 
