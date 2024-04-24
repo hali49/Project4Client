@@ -470,11 +470,11 @@ public class GuiClient extends Application{
 
 	public Scene generateResultScreen(String result) {
 		gameTitle = new Label("BATTLE SHIP");
-		gameTitle.getStyleClass().add("title");
+		gameTitle.getStyleClass().add("label1");
 		resultLabel = new Label(result);
-		resultLabel.getStyleClass().add("result");
+		resultLabel.getStyleClass().add("label2");
 		mainMenu = new Button("Main menu");
-		mainMenu.getStyleClass().add("button");
+		mainMenu.getStyleClass().add("button1");
 		VBox v1 = new VBox(18, resultLabel, mainMenu);
 		mainMenu.setOnAction(e->{
 			stage.setScene(sceneMap.get("mainMenu"));
