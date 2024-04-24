@@ -30,8 +30,6 @@
 .button1{
     -fx-background-color: #d9d9d9;
     -fx-background-radius: 30px;
-    /*-fx-pref-height: 111px;*/
-    /*-fx-pref-width: 328px;*/
     -fx-text-alignment: center;
     -fx-font-size: 50px;
     -fx-font-family: "Kelly Slab";
