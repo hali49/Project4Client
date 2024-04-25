@@ -33,6 +33,7 @@ public class GuiClient extends Application{
 	HashMap<String, Scene> sceneMap; //scene switching
 	Client clientConnection;
 
+	boolean offlineGame = false;
 
 	//menu screen
 	Label gameTitle;
@@ -283,10 +284,12 @@ public class GuiClient extends Application{
 
 		});
 		offlineGameButton.setOnAction(e->{
-			stage.setScene(sceneMap.get("Offline Game"));
+			stage.setScene(sceneMap.get("gameplay"));
+			gameStatus.setText("Place ship size: " + shipSizes.get(shipIndex)); //Arraylist (2, 3, 3, 4, 5)
 			GameInfo data = new GameInfo();
-			data.lookingForGame = true;
+			data.lookingForOfflineGame = true;
 			clientConnection.sendInfo(data);
+			offlineGame = true;
 
 		});
 		Scene scene = new Scene(pane, 1440,1024);
@@ -413,6 +416,9 @@ public class GuiClient extends Application{
 							hitMessage.hitShip = true;
 							hitMessage.hitShipRow = row;
 							hitMessage.hitShipCol = col;
+							if (offlineGame) {
+								hitMessage.aiGame = true;
+							}
 							clientConnection.sendInfo(hitMessage);
 
 						}
@@ -468,6 +474,7 @@ public class GuiClient extends Application{
 			stage.setScene(sceneMap.get("mainMenu"));
 			sceneMap.put("gameplay", generateGameplayScene());
 			yourTurn = false;
+			offlineGame = false;
 		});
 
 		Scene scene = new Scene(vbox1, 1440, 1024);
@@ -487,6 +494,7 @@ public class GuiClient extends Application{
 			stage.setScene(sceneMap.get("mainMenu"));
 			sceneMap.put("gameplay", generateGameplayScene()); //reset gameplay screen
 			yourTurn = false;
+			offlineGame = false;
 		});
 		VBox v2 = new VBox(60, gameTitle, v1);
 		v1.setAlignment(Pos.CENTER);
