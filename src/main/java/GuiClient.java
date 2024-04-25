@@ -282,6 +282,13 @@ public class GuiClient extends Application{
 			clientConnection.sendInfo(data);
 
 		});
+		offlineGameButton.setOnAction(e->{
+			stage.setScene(sceneMap.get("Offline Game"));
+			GameInfo data = new GameInfo();
+			data.lookingForGame = true;
+			clientConnection.sendInfo(data);
+
+		});
 		Scene scene = new Scene(pane, 1440,1024);
 		scene.getStylesheets().add("/styles/style1.css");
 		return scene;
